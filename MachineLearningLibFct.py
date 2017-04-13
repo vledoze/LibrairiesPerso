@@ -22,10 +22,10 @@ def fct_hyp_reg_lin(vec_theta, vec_x):
     return h
 
 def fct_hyp_cls_lin(vec_theta, vec_x):
-    """ Fonction hypothese pour classification 
+    """ Fonction hypothese pour classification
         entree : theta = coefficients de la fonction
                  x     = variables de la fonction
-        sortie : hypothese de classification 
+        sortie : hypothese de classification
     """
     return fct_hyp_sigmoid(fct_hyp_reg_lin(vec_theta, vec_x))
 
@@ -69,15 +69,14 @@ def fct_add_ones(mat_x):
 
 # Fonctions cout -------------------------------------------------------
 
-def fct_cout_reg(fct_f, vec_theta, vec_x, num_y):
+def fct_cout_reg(num_y, num_h):
     """ Fonction de cout pour une regression
-        entree : fct_f          = fonction hypothese
-                 vec_theta      = coeficients fonction hypothese
-                 [vec_x, num_y] = training set
+        entree : num_y = une sortie de reference
+                 num_h = valeur de l'hypothese obtenue
         sortie : cout de la fonction hypothese / realite
     """
-    return pow((fct_f(vec_theta, vec_x) - num_y), 2)
-    
+    return pow((num_h - num_y), 2)
+
 def fct_sum_cout_reg(fct_f, vec_theta, mat_x, vec_y):
     """ Fonction de somme de cout pour une regression
         entree : fct_f          = fonction hypothese
@@ -87,23 +86,22 @@ def fct_sum_cout_reg(fct_f, vec_theta, mat_x, vec_y):
     """
     num_m = len(vec_y)
     mat_x0 = fct_add_ones(mat_x)
-    num_cost = 0
+    num_J = 0
     for i in range(num_m):
         vec_x = mat_x0[i, :]
         num_y = vec_y[i]
-        num_cost = num_cost + fct_cout_reg(fct_f, vec_theta, mat_x, vec_y)
-    num_cost = (1/2*m)*num_cost
-    return num_cost
-    
-def fct_cout_cls(fct_f, vec_theta, vec_x, num_y):
-    """ Fonction de cout pour une classification 
-        entree : fct_f          = fonction hypothese
-                 vec_theta      = coeficients fonction hypothese
-                 [vec_x, num_y] = one training
+        num_h = fct_f(vec_theta, vec_x)
+        num_J = num_J + fct_cout_reg(num_y, num_h)
+    num_J = (1/2*m)*num_J
+    return num_J
+
+def fct_cout_cls(num_y, num_h):
+    """ Fonction de cout pour une classification
+        entree : num_y = une sortie de reference
+                 num_h = valeur de l'hypothese obtenue
         sortie : cout de la fonction hypothese / realite
     """
-    num_f = fct_f(vec_theta, vec_x)
-    return -num_y*log(num_f) - (1.0-num_y)*log(1.0-num_f)
+    return -num_y*log(num_h) - (1.0-num_y)*log(1.0-num_h)
 
 def fct_sum_cout_cls(fct_f, vec_theta, mat_x, vec_y):
     """ Fonction de somme de cout pour une regression
@@ -114,13 +112,14 @@ def fct_sum_cout_cls(fct_f, vec_theta, mat_x, vec_y):
     """
     num_m = len(vec_y)
     mat_x0 = fct_add_ones(mat_x)
-    num_cost = 0
+    num_J = 0
     for i in range(num_m):
         vec_x = mat_x0[i, :]
+        num_h = fct_f(vec_theta, vec_x)
         num_y = vec_y[i]
-        num_cost = num_cost + fct_cout_cls(fct_f, vec_theta, mat_x, vec_y)
-    num_cost = (1/m)*num_cost
-    return num_cost
+        num_J = num_J + fct_cout_cls(num_y, num_h)
+    num_J = (1/m)*num_J
+    return num_J
 
 # Fonctions principales ------------------------------------------------
 
@@ -145,7 +144,7 @@ def fct_grd_des_cls_lin(mat_x, vec_y, num_alpha, num_eps, num_lambda=-1):
         sortie : coefficients du modele
     """
     return fct_grd_des(mat_x, vec_y, fct_hyp_cls_lin, num_alpha, num_eps, num_lambda)
-    
+
 def fct_grd_des(mat_x, vec_y, fct_f, num_alpha, num_eps, num_lambda=-1):
     """ Fonction de descente de gradient pour une fonction hypothese quelconque
         entree : [mat_x, vec_y] = training set
@@ -164,15 +163,15 @@ def fct_grd_des(mat_x, vec_y, fct_f, num_alpha, num_eps, num_lambda=-1):
         vec_theta_tmp = np.ones(num_n)
         boo_repeat = False
         for j in range(num_n):
-            num_cost = 0
+            num_J = 0
             for i in range(num_m):
                 vec_x = mat_x0[i].A1
-                num_cost = num_cost + (fct_f(vec_theta, vec_x) - vec_y[i])*vec_x[j]
+                num_J += (fct_f(vec_theta, vec_x) - vec_y[i])*vec_x[j]
             if (num_lambda>0) & (j>0):
                 vec_theta_tmp[j] = (  vec_theta[j]*(1.0 - num_alpha*num_lambda/num_m)
-                                    - (num_alpha/num_m)*num_cost)
+                                    - (num_alpha/num_m)*num_J)
             else:
-                vec_theta_tmp[j] = vec_theta[j] - (num_alpha/num_m)*num_cost
+                vec_theta_tmp[j] = vec_theta[j] - (num_alpha/num_m)*num_J
             if abs(vec_theta_tmp[j] - vec_theta[j]) > num_eps:
                 boo_repeat = True
         vec_theta = vec_theta_tmp
@@ -202,7 +201,7 @@ if __name__ == "__main__":
     mat_x = np.matrix([[1., 2., 3.], [4., 5., 6.], [3., 14., 9.]])
     mat_x0 = fct_add_ones(mat_x)
     vec_y = np.array([1., 3., 7.])
-    
+
     #print fct_feat_scl(vec_y)
     #print fct_mean_norm(vec_y)
     print "Training set"
