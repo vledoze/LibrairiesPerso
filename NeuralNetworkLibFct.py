@@ -6,7 +6,7 @@
 import math
 import numpy as np
 
-import MachineLearningLibFct
+import MachineLearningLibFct as ml
 
 class NeuralNetwork:
     """ Classe NeuralNetwork
@@ -14,24 +14,33 @@ class NeuralNetwork:
         - __num_L : nombre de "layers" du reseau
         - __num_k : nombre de classe de sortie
         - __vec_sL : nombre d'unite par "layer" sans le biais
-            vec_sl[0] = nombre d'entrees
+            vec_sl[0] = nombre d'activation du layer 1
             ...
-            vec_sl[num_L] = num_k
+            vec_sl[__num_L-1] = nombre d'activation du layer __num_L
         - __mat_pond : matrice des ponderations
-            mat_pond[0] = matrice permettant de passer du layer 0 au layer 1
+            mat_pond[0] = matrice permettant de passer des entrées au layer 1
+            ...
+            mat_pond[i] = matrice permettant de passer du layer i au layer i+1
+            ...
+            mat_pond[num_L] = matrice permettant de passer du layer num_L aux sorties
     """
 
-    def __init__(self, num_L=2, vec_sL=[1, 1], num_k=1):
+    def __init__(self, num_n=1, num_L=1, num_k=1, vec_sL=[1]):
         """ Constructeur de la classe NeuralNetwork
         """
-        self.__num_L = num_L + 1
+        self.__num_n = num_n
+        self.__num_L = num_L
         self.__num_k = num_k
         self.__vec_sL = vec_sL
-        self.__vec_sL.append(num_k)
-        for i in range(num_L-1):
-            mat_theta0 = np.ones(vec_sL[i+1], (vec_sL[i]+1))
-            #TODO ajouter random.gauss sur la matrice theta
-            self.__mat_pond.append(mat_theta0)
+        #TODO ajouter random.gauss sur la matrice theta
+        mat_theta_0 = np.ones([vec_sL[0], (num_n+1)])
+        self.__mat_pond = [mat_theta_0]
+        if num_L > 1:
+            for i in range(1, num_L-1):
+                mat_theta_i = np.ones([vec_sL[i+1], (vec_sL[i]+1)])
+                self.__mat_pond.append(mat_theta_i)
+        mat_theta_L = np.ones([num_k, (vec_sL[num_L-1]+1)])
+        self.__mat_pond.append(mat_theta_L)
 
     ### Methodes ------------------------------------------------------------###
     def mtd_hyp(self, vec_x):
@@ -54,19 +63,19 @@ class NeuralNetwork:
             sortie : num_J : cout
         """
         num_m = len(vec_y)
-        mat_x0 = fct_add_ones(mat_x)
+        mat_x0 = ml.fct_add_ones(mat_x)
         num_J1 = 0
         for i in range(num_m):
             vec_x = mat_x0[i].A1
-            for k in range(self.num_k):
-                if vec_y(i)==k:
+            for k in range(self.__num_k):
+                if vec_y[i]==k:
                     num_y = 1
                 else:
                     num_y = 0
                 num_h = self.mtd_hyp(vec_x)
-                num_J1 += fct_cout_cls(num_y, num_h)
+                num_J1 += ml.fct_cout_cls(num_y, num_h)
                 #TODO finir
-        return num_J
+        return num_J1
 
     ### Setter --------------------------------------------------------------###
     def set_num_L(self, num_L):
@@ -91,3 +100,12 @@ class NeuralNetwork:
 if __name__ == "__main__":
     """ Test des fonctions """
     print "Test des fonctionnalites"
+    nn_nwk = NeuralNetwork()
+    mat_x = np.matrix([[1., 2., 3.], [4., 5., 6.], [3., 14., 9.]])
+    vec_y = np.array([1., 3., 7.])
+    print nn_nwk.mtd_calc_cout(mat_x, vec_y)
+    print "Training set"
+    print "Entrees : "
+    print mat_x
+    print "Sorties : "
+    print vec_y

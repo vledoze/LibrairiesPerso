@@ -34,7 +34,7 @@ def fct_hyp_sigmoid(num_z):
         entree : z = variable
         sortie : fonction sigmoid [0, 1]
     """
-    return 1/(1 + exp(-num_z))
+    return 1/(1 + math.exp(-num_z))
 
 # Fonctions pre-traitement ---------------------------------------------
 
@@ -101,7 +101,7 @@ def fct_cout_cls(num_y, num_h):
                  num_h = valeur de l'hypothese obtenue
         sortie : cout de la fonction hypothese / realite
     """
-    return -num_y*log(num_h) - (1.0-num_y)*log(1.0-num_h)
+    return -num_y*math.log(num_h) - (1.0-num_y)*math.log(1.0-num_h)
 
 def fct_sum_cout_cls(fct_f, vec_theta, mat_x, vec_y):
     """ Fonction de somme de cout pour une regression
