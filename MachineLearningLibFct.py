@@ -101,7 +101,8 @@ def fct_cout_cls(num_y, num_h):
                  num_h = valeur de l'hypothese obtenue
         sortie : cout de la fonction hypothese / realite
     """
-    return -num_y*math.log(num_h) - (1.0-num_y)*math.log(1.0-num_h)
+    num_J = -num_y*math.log(num_h) - (1.0-num_y)*math.log(1.0-num_h)
+    return num_J
 
 def fct_sum_cout_cls(fct_f, vec_theta, mat_x, vec_y):
     """ Fonction de somme de cout pour une regression

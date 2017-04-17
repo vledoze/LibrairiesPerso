@@ -8,6 +8,8 @@ import numpy as np
 
 import MachineLearningLibFct as ml
 
+import pdb
+
 class NeuralNetwork:
     """ Classe NeuralNetwork
         Defini un reseau de neurone avec les attributs suivant
@@ -18,7 +20,7 @@ class NeuralNetwork:
             ...
             vec_sl[__num_L-1] = nombre d'activation du layer __num_L
         - __mat_pond : matrice des ponderations
-            mat_pond[0] = matrice permettant de passer des entrées au layer 1
+            mat_pond[0] = matrice permettant de passer des entrees au layer 1
             ...
             mat_pond[i] = matrice permettant de passer du layer i au layer i+1
             ...
@@ -43,17 +45,25 @@ class NeuralNetwork:
         self.__mat_pond.append(mat_theta_L)
 
     ### Methodes ------------------------------------------------------------###
+    def mtd_fwd_activation(self, vec_a, num_iL):
+        """ Fonction de calcul des activations dans le sens forward 
+            entree : vec_a  : vecteur des activations courantes 
+                     num_iL : numero du layer courant
+            sorties: vec_a1 : vecteur des activations suivantes
+        """
+        mat_theta = self.__mat_pond[num_iL]
+        vec_a1 = []
+        for i in range(len(mat_theta[:, 0])):
+            vec_theta = mat_theta[i,:]
+            vec_a1.append(ml.fct_hyp_cls_lin(vec_theta, vec_a))
+        return vec_a1
+            
     def mtd_hyp(self, vec_x):
         """ Fonction hypothese propre au reseau
         """
-        num_n = len(vec_x) + 1
         vec_a = vec_x
-        for i in range(self.__num_L - 1):
-            vec_a1 = [1]
-            for j in range(self.__vec_sL[i]):
-                vec_theta = self.__mat_theta[i][j]
-                vec_a_1.append(fct_hyp_cls_lin(vec_theta, vec_a))
-            vec_a = vec_a1
+        for i in range(self.__num_L):
+            vec_a = self.mtd_fwd_activation(vec_a, i)
         return vec_a
 
     def mtd_calc_cout(self, mat_x, vec_y):
@@ -72,7 +82,7 @@ class NeuralNetwork:
                     num_y = 1
                 else:
                     num_y = 0
-                num_h = self.mtd_hyp(vec_x)
+                num_h = self.mtd_hyp(vec_x)[k]
                 num_J1 += ml.fct_cout_cls(num_y, num_h)
                 #TODO finir
         return num_J1
@@ -100,7 +110,7 @@ class NeuralNetwork:
 if __name__ == "__main__":
     """ Test des fonctions """
     print "Test des fonctionnalites"
-    nn_nwk = NeuralNetwork()
+    nn_nwk = NeuralNetwork(3)
     mat_x = np.matrix([[1., 2., 3.], [4., 5., 6.], [3., 14., 9.]])
     vec_y = np.array([1., 3., 7.])
     print nn_nwk.mtd_calc_cout(mat_x, vec_y)
