@@ -66,9 +66,9 @@ class NeuralNetwork:
             sorties: vec_a1 : vecteur des activations suivantes
         """
         mat_theta = self.__mat_pond[num_iL-1]
-        num_nb_a = self.__vec_sL[num_iL]
+        num_nb_a = self.__vec_sL[num_iL-1]
         vec_a0 = []
-        for i in range(num_nb_a):
+        for i in range(1, num_nb_a+1):
             vec_theta = mat_theta[:,i]
             vec_a0.append(ml.fct_hyp_cls_lin(vec_theta, vec_a))
         return vec_a0
@@ -127,12 +127,12 @@ class NeuralNetwork:
             for l in range(self.__num_L-1):
                 mat_a.append(self.mtd_fwd_activation(mat_a[l].A1, l))
             mat_d = [[a-out for a,out in zip(mat_a[self.__num_L-1], mat_out[i])]]
-            for l in reversed(range(1, self.__num_L)):
-                vec_d0 = self.mtd_bwd_activation(mat_d[-1], l)
-                vec_d1 = [d0*a for d0,a in zip(vec_d0, mat_a[l])]
-                vec_d2 = [k-a for a, k in zip(mat_a[l], np.ones(self.__vec_sL[l]))]
-                vec_d = [d1*d2 for d1,d2 in zip(vec_d1, vec_d2)]
+            for l in reversed(range(self.__num_L)):
+                vec_d0 = self.mtd_bwd_activation(mat_d[-1], l+1)
                 pdb.set_trace()
+                vec_d1 = np.dot(vec_d0, mat_a[l])
+                vec_d2 = np.dot(mat_a[l], np.ones(self.__vec_sL[l]))
+                vec_d = np.dot(vec_d1, vec_d2)
                 mat_d.append(vec_d)
 
     def mtd_mat_out(self, vec_y):
