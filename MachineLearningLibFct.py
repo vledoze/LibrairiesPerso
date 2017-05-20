@@ -101,7 +101,7 @@ def fct_cout_cls(num_y, num_h):
                  num_h = valeur de l'hypothese obtenue
         sortie : cout de la fonction hypothese / realite
     """
-    num_J = -num_y*math.log(num_h) - (1.0-num_y)*math.log(1.0-num_h)
+    num_J = num_y*math.log(num_h) + (1.0-num_y)*math.log(1.0-num_h)
     return num_J
 
 def fct_sum_cout_cls(fct_f, vec_theta, mat_x, vec_y):
@@ -114,12 +114,11 @@ def fct_sum_cout_cls(fct_f, vec_theta, mat_x, vec_y):
     num_m = len(vec_y)
     mat_x0 = fct_add_ones(mat_x)
     num_J = 0
-    for i in range(num_m):
-        vec_x = mat_x0[i, :]
+    for m in range(num_m):
+        vec_x = mat_x0[m, :]
         num_h = fct_f(vec_theta, vec_x)
-        num_y = vec_y[i]
-        num_J = num_J + fct_cout_cls(num_y, num_h)
-    num_J = (1/m)*num_J
+        num_y = vec_y[m]
+        num_J -= fct_cout_cls(num_y, num_h)/num_m
     return num_J
 
 # Fonctions principales ------------------------------------------------
