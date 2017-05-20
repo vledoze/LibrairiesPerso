@@ -207,6 +207,8 @@ if __name__ == "__main__":
     print "Training set"
     print "Entrees : "
     print mat_x
+    print "Entrees avec biais : "
+    print fct_add_ones(mat_x)
     print "Sorties : "
     print vec_y
     print "Test descente de Gradient"
